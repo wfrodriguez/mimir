@@ -1,0 +1,31 @@
+package fs
+
+// Algunas extensiones de archivos que se pueden encontrar
+const (
+	C          = ".c"
+	Cpp        = ".cpp"
+	Css        = ".css"
+	Csv        = ".csv"
+	Golang     = ".go"
+	Html       = ".html"
+	Java       = ".java"
+	Javascript = ".js"
+	Json       = ".json"
+	Less       = ".less"
+	Lua        = ".lua"
+	Markdown   = ".md"
+	Pdf        = ".pdf"
+	Php        = ".php"
+	Rust       = ".rs"
+	Sass       = ".sass"
+	Svg        = ".svg"
+	Toml       = ".toml"
+	Typescript = ".ts"
+	Tsv        = ".tsv"
+	Tsx        = ".tsx"
+	Txt        = ".txt"
+	Vue        = ".vue"
+	Xml        = ".xml"
+	Yaml       = ".yaml"
+	Yml        = ".yml"
+)
