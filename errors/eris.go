@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/wfrodriguez/mimir/eris"
+	"github.com/rotisserie/eris"
 )
 
 func NewError(cls, msg string) error {
@@ -27,12 +27,12 @@ func TraceString(err error) string {
 }
 
 func ToJsonString(err error, indent bool) string {
-	value := eris.ToJson(err, true)
+	value := eris.ToJSON(err, true)
 
 	dat, _ := json.Marshal(value)
 	return string(dat)
 }
 
 func ToJsonMap(err error, indent bool) map[string]any {
-	return eris.ToJson(err, true)
+	return eris.ToJSON(err, true)
 }
