@@ -11,6 +11,6 @@ func Slugify(s string) string {
 
 // Slugify genera una cadena slug a partir de una cadena Unicode, URL-amigable con soporte para múltiples idiomas.
 // Si no se encuentra el idioma, pasa a "en" por defecto
-func Slugify(s string, lang string) string {
+func SlugifyLang(s string, lang string) string {
 	return slug.MakeLang(s, lang)
 }
