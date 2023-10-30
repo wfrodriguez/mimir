@@ -1,32 +1,109 @@
 package exec
 
 import (
+	"os"
 	"os/exec"
 	"strings"
 )
 
-type Output struct {
-	Out string
-	Err string
+type Executor interface {
+	Run() (*Result, error)
 }
 
-func RunCommand(args ...string) (Output, error) {
-	baseCmd := args[0]
-	cmdArgs := args[1:]
+type CommandOpt func(o *Command)
 
-	sout, serr := new(strings.Builder), new(strings.Builder)
+type Command struct {
+	command string
+	args    []string
+	cwd     string
+	env     []string
+	stdin   *strings.Reader
+	stdout  strings.Builder
+	stderr  strings.Builder
+}
 
-	cmd := exec.Command(baseCmd, cmdArgs...)
-	cmd.Stdout = sout
-	cmd.Stderr = serr
+type Result struct {
+	Stdout   string
+	Stderr   string
+	ExitCode int
+}
 
-	err := cmd.Run()
-	if err != nil {
-		return Output{}, err
+// NewCommandOpt crea una nueva instancia de Command
+func NewCommandOpt(opts ...CommandOpt) *Command {
+	c := &Command{
+		stdin:  strings.NewReader(""),
+		stdout: strings.Builder{},
+		stderr: strings.Builder{},
+		env:    os.Environ(),
+	}
+	for _, opt := range opts {
+		opt(c)
 	}
 
-	return Output{
-		Out: sout.String(),
-		Err: serr.String(),
-	}, nil
+	return c
+}
+
+func (c *Command) Run() (*Result, error) {
+	cmd := exec.Command(c.command, c.args...)
+	cmd.Dir = c.cwd
+	cmd.Env = c.env
+	cmd.Stdin = c.stdin
+	cmd.Stdout = &c.stdout
+	cmd.Stderr = &c.stderr
+
+	err := cmd.Run()
+	exitCode := 0
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		exitCode = exitErr.ExitCode()
+	} else if err != nil {
+		exitCode = 1
+	}
+
+	return &Result{
+		Stdout:   c.stdout.String(),
+		Stderr:   c.stderr.String(),
+		ExitCode: exitCode,
+	}, err
+}
+
+// WithCommand asigna command a Command
+func WithCommand(command string) CommandOpt {
+	return func(c *Command) {
+		c.command = command
+	}
+}
+
+// WithArgs asigna args a Command
+func WithArgs(args []string) CommandOpt {
+	return func(c *Command) {
+		c.args = args
+	}
+}
+
+// WithCwd asigna cwd a Command
+func WithCwd(cwd string) CommandOpt {
+	return func(c *Command) {
+		c.cwd = cwd
+	}
+}
+
+// WithEnv agrega env a Command
+func WithEnv(env []string) CommandOpt {
+	return func(c *Command) {
+		c.env = append(c.env, env...)
+	}
+}
+
+// WithStdin asigna stdin a Command
+func WithStdin(stdin *strings.Reader) CommandOpt {
+	return func(c *Command) {
+		c.stdin = stdin
+	}
+}
+
+// WithStdout asigna stdout a Command
+func WithStdout(stdout strings.Builder) CommandOpt {
+	return func(c *Command) {
+		c.stdout = stdout
+	}
 }
